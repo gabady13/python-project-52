@@ -16,11 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.http import HttpResponse
+from .views import index
 
-
-def index(request):
-    return HttpResponse("Hello, World!")
 
 urlpatterns = [
     path("", index, name="index"),
