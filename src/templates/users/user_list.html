@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+  <h1>Users</h1>
+
+  <table border="1">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>
+            <a href="/users/{{ user.id }}/update/">Edit</a>
+            |
+            <a href="/users/{{ user.id }}/delete/">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3">No users</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
