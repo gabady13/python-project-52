@@ -18,3 +18,6 @@ render-start:
 
 collectstatic:
 	uv run python manage.py collectstatic --noinput
+
+tests:
+	uv run python manage.py test task_manager
