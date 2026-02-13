@@ -18,9 +18,11 @@
           <td>{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>
-            <a href="/users/{{ user.id }}/update/">Edit</a>
+            <a href="{% url 'user_create' %}">Create user</a>
             |
-            <a href="/users/{{ user.id }}/delete/">Delete</a>
+            <a href="{% url 'user_update' user.id %}">Edit</a>
+            |
+            <a href="{% url 'user_delete' user.id %}">Delete</a>
           </td>
         </tr>
       {% empty %}
