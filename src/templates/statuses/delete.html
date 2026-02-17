@@ -1,0 +1,14 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<h1>Удаление статуса</h1>
+
+<p>Вы уверены, что хотите удалить статус "{{ object.name }}"?</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Да, удалить</button>
+</form>
+
+<p><a href="{% url 'statuses_list' %}">Отмена</a></p>
+{% endblock %}

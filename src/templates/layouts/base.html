@@ -13,6 +13,8 @@
     <a href="/users/">Users</a>
 
     {% if user.is_authenticated %}
+    <a href="{% url 'statuses_list' %}">Statuses</a>
+    
     <span> | {{ user.username }}</span>
     <form action="{% url 'logout' %}" method="post" style="display:inline;">
       {% csrf_token %}
@@ -24,6 +26,16 @@
   </nav>
 
   <hr>
+
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
 
   {% block content %}
   {% endblock %}

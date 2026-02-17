@@ -1,0 +1,13 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<h1>{% if object %}Изменение статуса{% else %}Создание статуса{% endif %}</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Сохранить</button>
+</form>
+
+<p><a href="{% url 'statuses_list' %}">Назад</a></p>
+{% endblock %}

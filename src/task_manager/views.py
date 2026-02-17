@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django import forms
+from django.forms import ModelForm
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -7,6 +9,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 
+from .models import Status
 
 def index(request):
     return render(request, "index.html")
@@ -68,3 +71,61 @@ class UserLoginView(LoginView):
 
 class UserLogoutView(LogoutView):
     http_method_names = ["post"]  
+
+
+class StatusForm(ModelForm):
+    class Meta:
+        model = Status
+        fields = ['name']   # важно: имя поля формы должно совпадать с демо
+
+
+class StatusListView(LoginRequiredMixin, ListView):
+    model = Status
+    template_name = 'statuses/list.html'
+    context_object_name = 'statuses'
+
+
+class StatusCreateView(LoginRequiredMixin, CreateView):
+    model = Status
+    form_class = StatusForm
+    template_name = 'statuses/form.html'
+    success_url = reverse_lazy('statuses_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Статус успешно создан')
+        return super().form_valid(form)
+
+
+class StatusUpdateView(LoginRequiredMixin, UpdateView):
+    model = Status
+    form_class = StatusForm
+    template_name = 'statuses/form.html'
+    success_url = reverse_lazy('statuses_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Статус успешно изменён')
+        return super().form_valid(form)
+
+
+class StatusDeleteView(LoginRequiredMixin, DeleteView):
+    model = Status
+    template_name = 'statuses/delete.html'
+    success_url = reverse_lazy('statuses_list')
+
+    def post(self, request, *args, **kwargs):
+        status = self.get_object()
+
+        # Бизнес-правило: нельзя удалить статус, если он используется задачами
+        # поддерживаем оба варианта (related_name='tasks' или дефолт task_set)
+        used = False
+        if hasattr(status, 'tasks'):
+            used = status.tasks.exists()
+        elif hasattr(status, 'task_set'):
+            used = status.task_set.exists()
+
+        if used:
+            messages.error(request, 'Невозможно удалить статус, потому что он используется')
+            return redirect(self.success_url)
+
+        messages.success(request, 'Статус успешно удалён')
+        return super().post(request, *args, **kwargs)
