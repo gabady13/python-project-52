@@ -9,6 +9,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Status, Task
 
@@ -69,9 +70,17 @@ class UserLoginView(LoginView):
     template_name = "users/login.html"
     redirect_authenticated_user = True  # если уже залогинен — не показывать форму
 
+    def form_valid(self, form):
+        messages.success(self.request, "Вы залогинены")
+        return super().form_valid(form)
+
 
 class UserLogoutView(LogoutView):
     http_method_names = ["post"]  
+
+    def post(self, request, *args, **kwargs):
+        messages.info(request, "Вы разлогинены")
+        return super().post(request, *args, **kwargs)
 
 
 class StatusForm(ModelForm):
@@ -176,21 +185,26 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):  # GET/POST /tasks/<pk>/up
         return super().form_valid(form)  # сохраняем
 
 
-class OnlyAuthorMixin(UserPassesTestMixin):  # миксин: удалять может только автор задачи
-    def test_func(self):  # проверка допуска
-        task = self.get_object()  # получаем задачу
-        return task.author_id == self.request.user.id  # true если текущий юзер == автор
+class OnlyAuthorMixin(UserPassesTestMixin):
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author_id == self.request.user.id
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+
+        messages.error(self.request, "Задачу может удалить только её автор")
+        return redirect("tasks_list")
+
 
 
 class TaskDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):  # GET/POST /tasks/<pk>/delete/ — удаление
-    model = Task  # модель
-    template_name = 'tasks/delete.html'  # шаблон подтверждения удаления
-    success_url = reverse_lazy('tasks_list')  # после удаления — список
+    model = Task
+    template_name = "tasks/delete.html"
+    success_url = reverse_lazy("tasks_list")
 
-    def post(self, request, *args, **kwargs):  # переопределяем POST ради flash
-        messages.success(request, 'Задача успешно удалена')  # flash успех (перед фактическим удалением)
-        return super().post(request, *args, **kwargs)  # удаляем
-
-    def handle_no_permission(self):  # если проверка миксина не прошла (не автор)
-        messages.error(self.request, 'Задачу может удалить только её автор')  # flash ошибка
-        return redirect(self.success_url)  # уводим в список
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
+        messages.success(request, "Задача успешно удалена")
+        return response

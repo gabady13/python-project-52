@@ -117,9 +117,9 @@ class StatusesCrudTests(TestCase):
             from task_manager.models import Task  # ожидаем модель Task в этом же app
         except Exception:
             self.skipTest("Task model is not implemented yet in task_manager.models")
-
+        
         status = Status.objects.create(name="Связанный")
-        Task.objects.create(name="T1", status=status)  # поля Task могут отличаться — подгони под свою модель
+        Task.objects.create(name="T1", status=status, author=self.user)  # поля Task могут отличаться — подгони под свою модель
 
         response = self.client.post(f"/statuses/{status.id}/delete/")
         self.assertEqual(response.status_code, 302)
