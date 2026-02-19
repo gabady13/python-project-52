@@ -16,18 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import (
-    index,
-    UsersListView,
-    UserCreateView,
-    UserUpdateView,
-    UserDeleteView,
-    UserLoginView,
-    UserLogoutView,
-    StatusListView,
-    StatusCreateView,
-    StatusUpdateView,
-    StatusDeleteView,
+from .views import (index,
+    UsersListView, UserCreateView, UserUpdateView, UserDeleteView, UserLoginView, UserLogoutView,
+    StatusListView, StatusCreateView, StatusUpdateView, StatusDeleteView,
+    TaskListView, TaskCreateView, TaskDetailView, TaskUpdateView, TaskDeleteView,  # CRUD задач
 )
 
 
@@ -47,5 +39,11 @@ urlpatterns = [
     path('statuses/create/', StatusCreateView.as_view(), name='status_create'),
     path('statuses/<int:pk>/update/', StatusUpdateView.as_view(), name='status_update'),
     path('statuses/<int:pk>/delete/', StatusDeleteView.as_view(), name='status_delete'),
+
+    path('tasks/', TaskListView.as_view(), name='tasks_list'),  # GET /tasks/ — список задач
+    path('tasks/create/', TaskCreateView.as_view(), name='task_create'),  # GET/POST /tasks/create/ — создание
+    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task_show'),  # GET /tasks/<pk>/ — просмотр
+    path('tasks/<int:pk>/update/', TaskUpdateView.as_view(), name='task_update'),  # GET/POST update
+    path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task_delete'),  # GET/POST delete
 
 ]

@@ -1,0 +1,13 @@
+{% extends "layouts/base.html" %} {# наследуем базовый шаблон #}
+
+{% block content %} {# контент #}
+<h1>{% if object %}Изменение задачи{% else %}Создание задачи{% endif %}</h1> {# заголовок зависит от режима #}
+
+<form method="post"> {# форма отправляется POST #}
+    {% csrf_token %} {# CSRF защита #}
+    {{ form.as_p }} {# вывод формы стандартно (поля name/description/status/executor) #}
+    <button type="submit">Сохранить</button> {# кнопка отправки #}
+</form> {# конец формы #}
+
+<p><a href="{% url 'tasks_list' %}">Назад</a></p> {# ссылка назад #}
+{% endblock %} {# конец блока #}

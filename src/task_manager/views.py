@@ -5,12 +5,12 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
-from .models import Status
+from .models import Status, Task
 
 def index(request):
     return render(request, "index.html")
@@ -130,3 +130,67 @@ class StatusDeleteView(LoginRequiredMixin, DeleteView):
 
         messages.success(request, 'Статус успешно удалён')
         return super().post(request, *args, **kwargs)
+
+
+class TaskForm(ModelForm):  # форма задачи
+    class Meta:  # meta
+        model = Task  # модель Task
+        fields = ['name', 'description', 'status', 'executor']  # важно: author НЕ в форме (ставим автоматически)
+
+
+class TaskListView(LoginRequiredMixin, ListView):  # GET /tasks/ — список задач
+    model = Task  # модель
+    template_name = 'tasks/list.html'  # шаблон списка
+    context_object_name = 'tasks'  # имя переменной в шаблоне
+
+    def get_queryset(self):  # определяем выборку
+        return Task.objects.select_related('status', 'author', 'executor').order_by('id')  # оптимизация + порядок
+
+
+class TaskCreateView(LoginRequiredMixin, CreateView):  # GET/POST /tasks/create/ — создание
+    model = Task  # модель
+    form_class = TaskForm  # форма
+    template_name = 'tasks/form.html'  # шаблон
+    success_url = reverse_lazy('tasks_list')  # после успеха — список
+
+    def form_valid(self, form):  # если форма валидна
+        form.instance.author = self.request.user  # ставим автора автоматически (по ТЗ)
+        messages.success(self.request, 'Задача успешно создана')  # flash успех
+        return super().form_valid(form)  # сохраняем
+
+
+class TaskDetailView(LoginRequiredMixin, DetailView):  # GET /tasks/<pk>/ — просмотр
+    model = Task  # модель
+    template_name = 'tasks/show.html'  # шаблон просмотра
+    context_object_name = 'task'  # имя переменной в шаблоне
+
+
+class TaskUpdateView(LoginRequiredMixin, UpdateView):  # GET/POST /tasks/<pk>/update/ — редактирование
+    model = Task  # модель
+    form_class = TaskForm  # форма
+    template_name = 'tasks/form.html'  # шаблон
+    success_url = reverse_lazy('tasks_list')  # после успеха — список
+
+    def form_valid(self, form):  # если форма валидна
+        messages.success(self.request, 'Задача успешно изменена')  # flash успех
+        return super().form_valid(form)  # сохраняем
+
+
+class OnlyAuthorMixin(UserPassesTestMixin):  # миксин: удалять может только автор задачи
+    def test_func(self):  # проверка допуска
+        task = self.get_object()  # получаем задачу
+        return task.author_id == self.request.user.id  # true если текущий юзер == автор
+
+
+class TaskDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):  # GET/POST /tasks/<pk>/delete/ — удаление
+    model = Task  # модель
+    template_name = 'tasks/delete.html'  # шаблон подтверждения удаления
+    success_url = reverse_lazy('tasks_list')  # после удаления — список
+
+    def post(self, request, *args, **kwargs):  # переопределяем POST ради flash
+        messages.success(request, 'Задача успешно удалена')  # flash успех (перед фактическим удалением)
+        return super().post(request, *args, **kwargs)  # удаляем
+
+    def handle_no_permission(self):  # если проверка миксина не прошла (не автор)
+        messages.error(self.request, 'Задачу может удалить только её автор')  # flash ошибка
+        return redirect(self.success_url)  # уводим в список
