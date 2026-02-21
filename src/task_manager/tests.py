@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
-from task_manager.models import Status, Task 
+from task_manager.models import Status, Task, Label
 
 
 class UsersCrudTests(TestCase):
@@ -281,3 +281,58 @@ class TasksCrudTests(TestCase):  # набор тестов CRUD для сущн�
         self.assertFalse(  # задача должна быть удалена
             Task.objects.filter(id=task.id).exists()  # проверяем отсутствие в БД
         )  # конец проверки удаления
+
+
+class LabelsCrudTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="u1", password="pass12345")
+        self.status = Status.objects.create(name="S1")
+
+    def test_labels_list_requires_login(self):
+        response = self.client.get(reverse("labels_list"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_create_label(self):
+        self.client.login(username="u1", password="pass12345")
+
+        response = self.client.post(reverse("label_create"), data={"name": "L1"})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(Label.objects.filter(name="L1").exists())
+
+    def test_update_label(self):
+        self.client.login(username="u1", password="pass12345")
+        label = Label.objects.create(name="L1")
+
+        response = self.client.post(reverse("label_update", args=[label.id]), data={"name": "L2"})
+        self.assertEqual(response.status_code, 302)
+
+        label.refresh_from_db()
+        self.assertEqual(label.name, "L2")
+
+    def test_delete_label_when_not_used(self):
+        self.client.login(username="u1", password="pass12345")
+        label = Label.objects.create(name="L1")
+
+        response = self.client.post(reverse("label_delete", args=[label.id]))
+        self.assertEqual(response.status_code, 302)
+
+        self.assertFalse(Label.objects.filter(id=label.id).exists())
+
+    def test_delete_label_when_used_forbidden(self):
+        self.client.login(username="u1", password="pass12345")
+        label = Label.objects.create(name="L1")
+
+        task = Task.objects.create(
+            name="T1",
+            description="D1",
+            status=self.status,
+            author=self.user,
+            executor=self.user,
+        )
+        task.labels.add(label)
+
+        response = self.client.post(reverse("label_delete", args=[label.id]))
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(Label.objects.filter(id=label.id).exists())

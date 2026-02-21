@@ -10,6 +10,14 @@ class Status(models.Model):
         return self.name
 
 
+class Label(models.Model):
+    name = models.CharField(max_length=255, unique=True, verbose_name='Имя')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Task(models.Model):  # модель "Задача" (новая сущность по ТЗ)
     name = models.CharField(max_length=255, verbose_name='Имя')  # имя задачи (обязательное)
     description = models.TextField(blank=True, verbose_name='Описание')  # описание (может быть пустым в форме)
@@ -35,6 +43,12 @@ class Task(models.Model):  # модель "Задача" (новая сущно�
         blank=True,  # в форме допускаем пустое значение
         verbose_name='Исполнитель',  # русское имя поля
     )
+
+    labels = models.ManyToManyField(
+        Label, 
+        blank=True, 
+        related_name='tasks', 
+        verbose_name='Метки')
 
     created_at = models.DateTimeField(  # техническое поле даты создания задачи
         auto_now_add=True,  # выставляется автоматически при создании записи

@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Status, Task
+from .models import Status, Task, Label
 
 def index(request):
     return render(request, "index.html")
@@ -144,7 +144,7 @@ class StatusDeleteView(LoginRequiredMixin, DeleteView):
 class TaskForm(ModelForm):  # форма задачи
     class Meta:  # meta
         model = Task  # модель Task
-        fields = ['name', 'description', 'status', 'executor']  # важно: author НЕ в форме (ставим автоматически)
+        fields = ['name', 'description', 'status', 'executor', 'labels']  # важно: author НЕ в форме (ставим автоматически)
 
 
 class TaskListView(LoginRequiredMixin, ListView):  # GET /tasks/ — список задач
@@ -208,3 +208,51 @@ class TaskDeleteView(LoginRequiredMixin, OnlyAuthorMixin, DeleteView):  # GET/PO
         response = super().delete(request, *args, **kwargs)
         messages.success(request, "Задача успешно удалена")
         return response
+
+
+class LabelForm(ModelForm):
+    class Meta:
+        model = Label
+        fields = ["name"]
+
+
+class LabelsListView(LoginRequiredMixin, ListView):
+    model = Label
+    template_name = "labels/list.html"
+    context_object_name = "labels"
+
+
+class LabelCreateView(LoginRequiredMixin, CreateView):
+    model = Label
+    form_class = LabelForm
+    template_name = "labels/form.html"
+    success_url = reverse_lazy("labels_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Метка успешно создана")
+        return super().form_valid(form)
+
+
+class LabelUpdateView(LoginRequiredMixin, UpdateView):
+    model = Label
+    form_class = LabelForm
+    template_name = "labels/form.html"
+    success_url = reverse_lazy("labels_list")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Метка успешно изменена")
+        return super().form_valid(form)
+
+
+class LabelDeleteView(LoginRequiredMixin, DeleteView):
+    model = Label
+    template_name = "labels/delete.html"
+    success_url = reverse_lazy("labels_list")
+
+    def post(self, request, *args, **kwargs):
+        label = self.get_object()
+        if label.tasks.exists():
+            messages.error(self.request, "Невозможно удалить метку, потому что она используется")
+            return redirect("labels_list")
+        messages.success(self.request, "Метка успешно удалена")
+        return super().post(request, *args, **kwargs)

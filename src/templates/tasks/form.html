@@ -1,84 +1,79 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-  <h1 class="my-4">
-    {% if object %}Изменение задачи{% else %}Создание задачи{% endif %}
-  </h1>
+<h1 class="my-4">
+  {% if object %}Изменение задачи{% else %}Создание задачи{% endif %}
+</h1>
 
-  <form method="post">
-    {% csrf_token %}
+<form method="post">
+  {% csrf_token %}
 
-    {# Общие ошибки формы #}
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger" role="alert">
-        {{ form.non_field_errors }}
-      </div>
+  {# Общие ошибки формы #}
+  {% if form.non_field_errors %}
+  <div class="alert alert-danger" role="alert">
+    {{ form.non_field_errors }}
+  </div>
+  {% endif %}
+
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+    <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}"
+      value="{{ form.name.value|default_if_none:'' }}" class="form-control" {% if form.name.field.required %}required{%
+      endif %}>
+    {% if form.name.errors %}
+    <div class="text-danger small mt-1">{{ form.name.errors }}</div>
     {% endif %}
+  </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-      <input
-        type="text"
-        name="{{ form.name.html_name }}"
-        id="{{ form.name.id_for_label }}"
-        value="{{ form.name.value|default_if_none:'' }}"
-        class="form-control"
-        {% if form.name.field.required %}required{% endif %}
-      >
-      {% if form.name.errors %}
-        <div class="text-danger small mt-1">{{ form.name.errors }}</div>
-      {% endif %}
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+    <textarea name="{{ form.description.html_name }}" id="{{ form.description.id_for_label }}" class="form-control"
+      rows="5">{{ form.description.value|default_if_none:'' }}</textarea>
+    {% if form.description.errors %}
+    <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+    {% endif %}
+  </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-      <textarea
-        name="{{ form.description.html_name }}"
-        id="{{ form.description.id_for_label }}"
-        class="form-control"
-        rows="5"
-      >{{ form.description.value|default_if_none:'' }}</textarea>
-      {% if form.description.errors %}
-        <div class="text-danger small mt-1">{{ form.description.errors }}</div>
-      {% endif %}
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+    <select name="{{ form.status.html_name }}" id="{{ form.status.id_for_label }}" class="form-select" {% if
+      form.status.field.required %}required{% endif %}>
+      {% for option in form.status %}
+      {{ option }}
+      {% endfor %}
+    </select>
+    {% if form.status.errors %}
+    <div class="text-danger small mt-1">{{ form.status.errors }}</div>
+    {% endif %}
+  </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
-      <select
-        name="{{ form.status.html_name }}"
-        id="{{ form.status.id_for_label }}"
-        class="form-select"
-        {% if form.status.field.required %}required{% endif %}
-      >
-        {% for option in form.status %}
-          {{ option }}
-        {% endfor %}
-      </select>
-      {% if form.status.errors %}
-        <div class="text-danger small mt-1">{{ form.status.errors }}</div>
-      {% endif %}
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.executor.id_for_label }}">{{ form.executor.label }}</label>
+    <select name="{{ form.executor.html_name }}" id="{{ form.executor.id_for_label }}" class="form-select">
+      {% for option in form.executor %}
+      {{ option }}
+      {% endfor %}
+    </select>
+    {% if form.executor.errors %}
+    <div class="text-danger small mt-1">{{ form.executor.errors }}</div>
+    {% endif %}
+  </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.executor.id_for_label }}">{{ form.executor.label }}</label>
-      <select
-        name="{{ form.executor.html_name }}"
-        id="{{ form.executor.id_for_label }}"
-        class="form-select"
-      >
-        {% for option in form.executor %}
-          {{ option }}
-        {% endfor %}
-      </select>
-      {% if form.executor.errors %}
-        <div class="text-danger small mt-1">{{ form.executor.errors }}</div>
-      {% endif %}
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.labels.id_for_label }}">{{ form.labels.label }}</label>
+    <select name="{{ form.labels.html_name }}" id="{{ form.labels.id_for_label }}" class="form-select" multiple>
+      {% for option in form.labels %}
+      {{ option }}
+      {% endfor %}
+    </select>
+    {% if form.labels.errors %}
+    <div class="text-danger small mt-1">{{ form.labels.errors }}</div>
+    {% endif %}
+  </div>
 
-    <div class="mt-4">
-      <button type="submit" class="btn btn-primary">Сохранить</button>
-      <a class="btn btn-outline-secondary ms-2" href="{% url 'tasks_list' %}">Назад</a>
-    </div>
-  </form>
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a class="btn btn-outline-secondary ms-2" href="{% url 'tasks_list' %}">Назад</a>
+  </div>
+</form>
 {% endblock %}

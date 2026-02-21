@@ -19,7 +19,8 @@ from django.urls import path
 from .views import (index,
     UsersListView, UserCreateView, UserUpdateView, UserDeleteView, UserLoginView, UserLogoutView,
     StatusListView, StatusCreateView, StatusUpdateView, StatusDeleteView,
-    TaskListView, TaskCreateView, TaskDetailView, TaskUpdateView, TaskDeleteView,  # CRUD задач
+    TaskListView, TaskCreateView, TaskDetailView, TaskUpdateView, TaskDeleteView,
+    LabelsListView, LabelCreateView, LabelUpdateView, LabelDeleteView,
 )
 
 
@@ -45,5 +46,10 @@ urlpatterns = [
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task_show'),  # GET /tasks/<pk>/ — просмотр
     path('tasks/<int:pk>/update/', TaskUpdateView.as_view(), name='task_update'),  # GET/POST update
     path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task_delete'),  # GET/POST delete
+
+    path("labels/", LabelsListView.as_view(), name="labels_list"),
+    path("labels/create/", LabelCreateView.as_view(), name="label_create"),
+    path("labels/<int:pk>/update/", LabelUpdateView.as_view(), name="label_update"),
+    path("labels/<int:pk>/delete/", LabelDeleteView.as_view(), name="label_delete"),
 
 ]
