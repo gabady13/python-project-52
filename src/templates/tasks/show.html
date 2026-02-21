@@ -1,19 +1,52 @@
-{% extends "layouts/base.html" %} {# наследуем базовый шаблон #}
+{% extends "layouts/base.html" %}
 
-{% block content %} {# контент #}
-<h1>{{ task.name }}</h1> {# имя задачи #}
+{% block content %}
+<h1 class="my-4">
+    Просмотр задачи
+</h1>
 
-<p><strong>Описание:</strong> {{ task.description|default:"—" }}</p> {# описание или тире #}
-<p><strong>Статус:</strong> {{ task.status }}</p> {# статус #}
-<p><strong>Автор:</strong> {{ task.author }}</p> {# автор #}
-<p><strong>Исполнитель:</strong> {{ task.executor|default:"—" }}</p> {# исполнитель #}
-<p><strong>Дата создания:</strong> {{ task.created_at }}</p> {# дата #}
-
-<p> {# блок ссылок #}
-    <a href="{% url 'task_update' task.id %}">Изменить</a> {# редактирование #}
-    | {# разделитель #}
-    <a href="{% url 'task_delete' task.id %}">Удалить</a> {# удаление #}
-    | {# разделитель #}
-    <a href="{% url 'tasks_list' %}">Назад к списку</a> {# назад #}
-</p> {# конец блока #}
-{% endblock %} {# конец контента #}
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        <h2>{{ task.name }}</h2>
+    </div>
+    <div class="card-body bg-light">
+        <p>{{ task.description }}</p>
+        <hr>
+        <div class="container">
+            <div class="row p-1">
+                <div class="col">Автор</div>
+                <div class="col">{{ task.author }}</div>
+            </div>
+            <div class="row p-1">
+                <div class="col">Исполнитель</div>
+                <div class="col">{{ task.executor }}</div>
+            </div>
+            <div class="row p-1">
+                <div class="col">Статус</div>
+                <div class="col">{{ task.status }}</div>
+            </div>
+            <div class="row p-1">
+                <div class="col">Дата создания</div>
+                <div class="col">{{ task.created_at|date:"d.m.Y H:i" }}</div>
+            </div>
+            <div class="row p-1">
+                <div class="col">
+                    <h6>Метки:</h6>
+                    <ul>
+                        {% for label in task.labels.all %}
+                        <li>{{ label.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="row p-1">
+                <div class="col">
+                    <a href="{% url 'task_update' task.id %}">Изменить</a>
+                    <br>
+                    <a href="{% url 'task_delete' task.id %}">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
