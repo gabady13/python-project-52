@@ -10,26 +10,36 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c#u7hgiz$he29g9ukw-jn^0er@f#wji8j35$qqo3gbbwd-vf=o'
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-c#u7hgiz$he29g9ukw-jn^0er@f#wji8j35$qqo3gbbwd-vf=o",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").strip().lower() in ("1", "true", "yes", "y", "on")
 
 ALLOWED_HOSTS = [
-    "webserver",
-    ".onrender.com",
-    "127.0.0.1",
-    "localhost",
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "webserver,.onrender.com,127.0.0.1,localhost",
+    ).split(",")
+    if host.strip()
 ]
 
 
@@ -56,6 +66,33 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+ROLLBAR_ENABLED = os.getenv("ROLLBAR_ENABLED", "False").strip().lower() in (
+    "1",
+    "true",
+    "yes",
+    "y",
+    "on",
+)
+ROLLBAR_ACCESS_TOKEN = os.getenv("ROLLBAR_ACCESS_TOKEN", "").strip()
+ROLLBAR_ENVIRONMENT = os.getenv("ROLLBAR_ENVIRONMENT", "development").strip()
+ROLLBAR_CODE_VERSION = os.getenv("ROLLBAR_CODE_VERSION", "").strip()
+
+if ROLLBAR_ENABLED and not DEBUG and ROLLBAR_ACCESS_TOKEN:
+    import rollbar
+
+    rollbar.init(
+        access_token=ROLLBAR_ACCESS_TOKEN,
+        environment=ROLLBAR_ENVIRONMENT,
+        code_version=ROLLBAR_CODE_VERSION or None,
+        root=str(BASE_DIR),
+        handler="blocking",
+        exception_level_filters=[
+            ("django.http.Http404", "ignored"),
+        ],
+    )
+
+    MIDDLEWARE.append("rollbar.contrib.django.middleware.RollbarNotifierMiddleware")
 
 ROOT_URLCONF = 'task_manager.urls'
 
