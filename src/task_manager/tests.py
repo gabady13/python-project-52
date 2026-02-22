@@ -336,3 +336,74 @@ class LabelsCrudTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
         self.assertTrue(Label.objects.filter(id=label.id).exists())
+
+
+class TasksFilterTests(TestCase):
+    def setUp(self):
+        self.author = User.objects.create_user(username="author_f", password="StrongPass123")
+        self.other_author = User.objects.create_user(username="other_f", password="StrongPass123")
+        self.executor_1 = User.objects.create_user(username="exec1_f", password="StrongPass123")
+        self.executor_2 = User.objects.create_user(username="exec2_f", password="StrongPass123")
+
+        self.status_1 = Status.objects.create(name="S1_f")
+        self.status_2 = Status.objects.create(name="S2_f")
+
+        self.label_1 = Label.objects.create(name="L1_f")
+        self.label_2 = Label.objects.create(name="L2_f")
+
+        self.t1 = Task.objects.create(
+            name="T1_f",
+            description="",
+            status=self.status_1,
+            author=self.author,
+            executor=self.executor_1,
+        )
+        self.t1.labels.add(self.label_1)
+
+        self.t2 = Task.objects.create(
+            name="T2_f",
+            description="",
+            status=self.status_2,
+            author=self.author,
+            executor=self.executor_2,
+        )
+        self.t2.labels.add(self.label_2)
+
+        self.t3 = Task.objects.create(
+            name="T3_f",
+            description="",
+            status=self.status_1,
+            author=self.other_author,
+            executor=self.executor_1,
+        )
+        self.t3.labels.add(self.label_2)
+
+        self.client.login(username="author_f", password="StrongPass123")
+
+    def test_filter_by_status(self):
+        response = self.client.get("/tasks/", {"status": self.status_1.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "T1_f")
+        self.assertContains(response, "T3_f")
+        self.assertNotContains(response, "T2_f")
+
+    def test_filter_by_executor(self):
+        response = self.client.get("/tasks/", {"executor": self.executor_2.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "T2_f")
+        self.assertNotContains(response, "T1_f")
+        self.assertNotContains(response, "T3_f")
+
+    def test_filter_by_label(self):
+        response = self.client.get("/tasks/", {"label": self.label_2.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "T2_f")
+        self.assertContains(response, "T3_f")
+        self.assertNotContains(response, "T1_f")
+
+    def test_filter_only_self_tasks(self):
+        response = self.client.get("/tasks/", {"self_tasks": "on"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "T1_f")
+        self.assertContains(response, "T2_f")
+        self.assertNotContains(response, "T3_f")

@@ -10,8 +10,10 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django_filters.views import FilterView
 
 from .models import Status, Task, Label
+from .filters import TaskFilter
 
 def index(request):
     return render(request, "index.html")
@@ -147,13 +149,12 @@ class TaskForm(ModelForm):  # форма задачи
         fields = ['name', 'description', 'status', 'executor', 'labels']  # важно: author НЕ в форме (ставим автоматически)
 
 
-class TaskListView(LoginRequiredMixin, ListView):  # GET /tasks/ — список задач
+class TaskListView(LoginRequiredMixin, FilterView):  # GET /tasks/ — список задач
     model = Task  # модель
     template_name = 'tasks/list.html'  # шаблон списка
     context_object_name = 'tasks'  # имя переменной в шаблоне
-
-    def get_queryset(self):  # определяем выборку
-        return Task.objects.select_related('status', 'author', 'executor').order_by('id')  # оптимизация + порядок
+    filterset_class = TaskFilter
+    queryset = Task.objects.select_related('status', 'author', 'executor').prefetch_related('labels').order_by('id')
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):  # GET/POST /tasks/create/ — создание

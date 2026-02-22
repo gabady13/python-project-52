@@ -1,44 +1,69 @@
-{% extends "layouts/base.html" %} {# наследуем базовый шаблон #}
+{% extends "layouts/base.html" %}
 
-{% block content %} {# открываем блок контента #}
-<h1>Задачи</h1> {# заголовок страницы #}
+{% block content %}
+<h1 class="my-4">Задачи</h1>
 
-<p> {# абзац для кнопки создания #}
-    <a href="{% url 'task_create' %}">Создать задачу</a> {# ссылка на создание #}
-</p> {# конец абзаца #}
+<a class="btn btn-primary mb-3" href="{% url 'task_create' %}" role="button">Создать задачу</a>
 
-<table> {# таблица задач #}
-    <thead> {# шапка таблицы #}
-        <tr> {# строка шапки #}
-            <th>ID</th> {# колонка id #}
-            <th>Имя</th> {# колонка имени #}
-            <th>Статус</th> {# колонка статуса #}
-            <th>Автор</th> {# колонка автора #}
-            <th>Исполнитель</th> {# колонка исполнителя #}
-            <th>Дата создания</th> {# колонка даты #}
-            <th></th> {# колонка действий #}
-        </tr> {# конец строки #}
-    </thead> {# конец шапки #}
-    <tbody> {# тело таблицы #}
-        {% for task in tasks %} {# цикл по задачам #}
-        <tr> {# строка задачи #}
-            <td>{{ task.id }}</td> {# id #}
-            <td><a href="{% url 'task_show' task.id %}">{{ task.name }}</a></td> {# имя со ссылкой на просмотр #}
-            <td>{{ task.status }}</td> {# статус (через __str__) #}
-            <td>{{ task.author }}</td> {# автор #}
-            <td>{{ task.executor|default:"—" }}</td> {# исполнитель или тире #}
-            <td>{{ task.created_at }}</td> {# дата создания #}
-            <td> {# действия #}
-                <a href="{% url 'task_update' task.id %}">Изменить</a> {# ссылка на редактирование #}
-                | {# разделитель #}
-                <a href="{% url 'task_delete' task.id %}">Удалить</a> {# ссылка на удаление #}
-            </td> {# конец действий #}
-        </tr> {# конец строки задачи #}
-        {% empty %} {# если задач нет #}
+<div class="card mb-3">
+    <div class="card-body bg-light">
+        <form class="form-inline center" method="get">
+            <div class="mb-3">
+                <label class="form-label" for="{{ filter.form.status.id_for_label }}">Статус</label>
+                {{ filter.form.status }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ filter.form.executor.id_for_label }}">Исполнитель</label>
+                {{ filter.form.executor }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ filter.form.label.id_for_label }}">Метка</label>
+                {{ filter.form.label }}
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    {{ filter.form.self_tasks }}
+                    <label class="form-check-label" for="{{ filter.form.self_tasks.id_for_label }}">Только свои
+                        задачи</label>
+                </div>
+            </div>
+            <input class="btn btn-primary" type="submit" value="Показать">
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Статус</th>
+            <th>Автор</th>
+            <th>Исполнитель</th>
+            <th>Дата создания</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.id }}</td>
+            <td><a href="{% url 'task_show' task.id %}">{{ task.name }}</a></td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.author }}</td>
+            <td>{{ task.executor|default:"—" }}</td>
+            <td>{{ task.created_at }}</td>
+            <td>
+                <a href="{% url 'task_update' task.id %}">Изменить</a>
+                |
+                <a href="{% url 'task_delete' task.id %}">Удалить</a>
+            </td>
+        </tr>
+        {% empty %}
         <tr>
             <td colspan="7">Нет задач</td>
-        </tr> {# вывод заглушки #}
-        {% endfor %} {# конец цикла #}
-    </tbody> {# конец тела #}
-</table> {# конец таблицы #}
-{% endblock %} {# конец блока #}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
