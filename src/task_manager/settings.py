@@ -74,25 +74,37 @@ ROLLBAR_ENABLED = os.getenv("ROLLBAR_ENABLED", "False").strip().lower() in (
     "y",
     "on",
 )
+
 ROLLBAR_ACCESS_TOKEN = os.getenv("ROLLBAR_ACCESS_TOKEN", "").strip()
-ROLLBAR_ENVIRONMENT = os.getenv("ROLLBAR_ENVIRONMENT", "development").strip()
+
+ROLLBAR_ENVIRONMENT = os.getenv(
+    "ROLLBAR_ENVIRONMENT",
+    "development" if DEBUG else "production",
+).strip()
+
 ROLLBAR_CODE_VERSION = os.getenv("ROLLBAR_CODE_VERSION", "").strip()
 
+ROLLBAR = {
+    "access_token": ROLLBAR_ACCESS_TOKEN,
+    "environment": ROLLBAR_ENVIRONMENT,
+    "code_version": ROLLBAR_CODE_VERSION or None,
+    "root": str(BASE_DIR),
+}
+
 if ROLLBAR_ENABLED and not DEBUG and ROLLBAR_ACCESS_TOKEN:
-    import rollbar
-
-    rollbar.init(
-        access_token=ROLLBAR_ACCESS_TOKEN,
-        environment=ROLLBAR_ENVIRONMENT,
-        code_version=ROLLBAR_CODE_VERSION or None,
-        root=str(BASE_DIR),
-        handler="blocking",
-        exception_level_filters=[
-            ("django.http.Http404", "ignored"),
-        ],
-    )
-
     MIDDLEWARE.append("rollbar.contrib.django.middleware.RollbarNotifierMiddleware")
+
+ROLLBAR_TEST_EVENT = os.getenv("ROLLBAR_TEST_EVENT", "False").strip().lower() in (
+    "1",
+    "true",
+    "yes",
+    "y",
+    "on",
+)
+
+if ROLLBAR_ENABLED and not DEBUG and ROLLBAR_ACCESS_TOKEN and ROLLBAR_TEST_EVENT:
+    import rollbar
+    rollbar.report_message("Rollbar test message (startup)", level="info")
 
 ROOT_URLCONF = 'task_manager.urls'
 

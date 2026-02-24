@@ -13,6 +13,7 @@ __pycache__/
 
 # --- Virtual env / package managers ---
 .venv/
+.env
 venv/
 ENV/
 env/
