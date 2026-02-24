@@ -94,6 +94,7 @@ ROLLBAR = {
 if ROLLBAR_ENABLED and not DEBUG and ROLLBAR_ACCESS_TOKEN:
     MIDDLEWARE.append("rollbar.contrib.django.middleware.RollbarNotifierMiddleware")
 
+
 ROLLBAR_TEST_EVENT = os.getenv("ROLLBAR_TEST_EVENT", "False").strip().lower() in (
     "1",
     "true",
@@ -101,10 +102,6 @@ ROLLBAR_TEST_EVENT = os.getenv("ROLLBAR_TEST_EVENT", "False").strip().lower() in
     "y",
     "on",
 )
-
-if ROLLBAR_ENABLED and not DEBUG and ROLLBAR_ACCESS_TOKEN and ROLLBAR_TEST_EVENT:
-    import rollbar
-    rollbar.report_message("Rollbar test message (startup)", level="info")
 
 ROOT_URLCONF = 'task_manager.urls'
 
