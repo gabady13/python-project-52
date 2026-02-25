@@ -113,6 +113,10 @@ class UserUpdateView(LoginRequiredMixin, OnlySelfMixin, UpdateView):
     template_name = "users/user_form.html"
     success_url = reverse_lazy("users_list")
 
+    def form_valid(self, form):
+        messages.success(self.request, "Пользователь успешно изменен")
+        return super().form_valid(form)
+
 
 class UserDeleteView(LoginRequiredMixin, OnlySelfMixin, SafeDeleteWithProtectedErrorMixin, DeleteView):
     model = User
