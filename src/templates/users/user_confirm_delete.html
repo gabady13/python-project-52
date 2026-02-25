@@ -1,12 +1,12 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-  <h1>Delete user</h1>
+  <h1 class="my-4">Удаление пользователя</h1>
 
-  <p>Are you sure you want to delete {{ object.username }}?</p>
+  <p>Вы уверены, что хотите удалить пользователя?</p>
 
   <form method="post">
     {% csrf_token %}
-    <button type="submit">Yes, delete</button>
+    <button type="submit" class="btn btn-danger">Да, удалить</button>
   </form>
 {% endblock %}
