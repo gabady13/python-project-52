@@ -1,10 +1,11 @@
 from django import forms
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
+from django.contrib.auth.password_validation import validate_password
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from .mixins import SafeDeleteWithProtectedErrorMixin
@@ -40,14 +41,54 @@ class UserRegisterForm(UserCreationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
+    password1 = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        required=False,
+    )
+    password2 = forms.CharField(
+        label="Подтверждение пароля",
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        required=False,
+    )
+
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "username")
+        fields = ("first_name", "last_name", "username", "password1", "password2")
         labels = {
             "first_name": "Имя",
             "last_name": "Фамилия",
             "username": "Имя пользователя",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("password1")
+        p2 = cleaned.get("password2")
+
+        if p1 or p2:
+            if p1 != p2:
+                self.add_error("password2", "Пароли не совпадают")
+            else:
+
+                validate_password(p1, self.instance)
+
+        return cleaned
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        p1 = self.cleaned_data.get("password1")
+        if p1:
+            user.set_password(p1)
+        if commit:
+            user.save()
+        return user
 
 
 class OnlySelfMixin(UserPassesTestMixin):
