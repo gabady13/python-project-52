@@ -22,13 +22,32 @@ class UsersListView(ListView):
 class UserRegisterForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("username", "first_name", "last_name")
+        fields = ("first_name", "last_name", "username", "password1", "password2")
+        labels = {
+            "first_name": "Имя",
+            "last_name": "Фамилия",
+            "username": "Имя пользователя",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+        
+        self.fields["password1"].label = "Пароль"
+        self.fields["password2"].label = "Подтверждение пароля"
 
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name")
+        fields = ("first_name", "last_name", "username")
+        labels = {
+            "first_name": "Имя",
+            "last_name": "Фамилия",
+            "username": "Имя пользователя",
+        }
 
 
 class OnlySelfMixin(UserPassesTestMixin):
