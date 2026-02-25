@@ -38,7 +38,7 @@ class StatusUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("statuses_list")
 
     def form_valid(self, form):
-        messages.success(self.request, "Статус успешно изменён")
+        messages.success(self.request, "Статус успешно изменен")
         return super().form_valid(form)
 
 

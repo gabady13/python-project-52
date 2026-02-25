@@ -66,7 +66,7 @@ class OnlyAuthorMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
             return super().handle_no_permission()
-        messages.error(self.request, "Задачу может удалить только её автор")
+        messages.error(self.request, "Задачу может удалить только ее автор")
         return redirect("tasks_list")
 
 

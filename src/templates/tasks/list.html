@@ -56,7 +56,10 @@
             <td>
                 <a href="{% url 'task_update' task.id %}">Изменить</a>
                 |
+                {% if task.author_id == user.id %}
+                |
                 <a href="{% url 'task_delete' task.id %}">Удалить</a>
+                {% endif %}
             </td>
         </tr>
         {% empty %}

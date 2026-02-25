@@ -4,7 +4,7 @@
 <div class="row justify-content-center">
   <div class="col-md-6 col-lg-5">
 
-    <h1 class="mb-4">Регистрация</h1>
+    <h1 class="mb-4">{% if object %}Изменение пользователя{% else %}Регистрация{% endif %}</h1>
 
     <form method="post" novalidate>
       {% csrf_token %}
@@ -89,7 +89,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary w-100">
-        {% if object %}Сохранить{% else %}Зарегистрироваться{% endif %}
+        {% if object %}Изменить{% else %}Зарегистрироваться{% endif %}
       </button>
     </form>
 
