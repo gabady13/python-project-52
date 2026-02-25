@@ -1,35 +1,35 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-  <h1>Users</h1>
+<h1>Пользователи</h1>
 
-  <table border="1">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th></th>
-      </tr>
-    </thead>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Имя</th>
+      <th>Имя пользователя</th>
+      <th></th>
+    </tr>
+  </thead>
 
-    <tbody>
-      {% for user in users %}
-        <tr>
-          <td>{{ user.id }}</td>
-          <td>{{ user.username }}</td>
-          <td>
-            <a href="{% url 'user_create' %}">Create user</a>
-            |
-            <a href="{% url 'user_update' user.id %}">Edit</a>
-            |
-            <a href="{% url 'user_delete' user.id %}">Delete</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3">No users</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.first_name }} {{ user.last_name }}</td>
+      <td>{{ user.username }}</td>
+      <td class="text-end">
+        <a href="{% url 'user_update' user.id %}">Изменить</a>
+        |
+        <a href="{% url 'user_delete' user.id %}">Удалить</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">Пользователи отсутствуют</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
