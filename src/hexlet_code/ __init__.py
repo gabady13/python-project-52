@@ -1,0 +1,1 @@
+"""Hexlet project package marker."""
