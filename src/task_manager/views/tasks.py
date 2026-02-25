@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.forms import ModelForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django_filters.views import FilterView
 
 from ..filters import TaskFilter
@@ -16,17 +16,18 @@ class TaskForm(ModelForm):
     class Meta:
         model = Task
         fields = ["name", "description", "status", "executor", "labels"]
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        User = get_user_model()
-        self.fields["executor"].queryset = User.objects.all()
+        user_model = get_user_model()
+        self.fields["executor"].queryset = user_model.objects.all()
 
         def _label(user):
             full_name = f"{user.first_name} {user.last_name}".strip()
             return full_name or user.get_username()
 
         self.fields["executor"].label_from_instance = _label
+
 
 class TaskListView(LoginRequiredMixin, FilterView):
     model = Task
@@ -81,9 +82,16 @@ class OnlyAuthorMixin(UserPassesTestMixin):
         return redirect("tasks_list")
 
 
-class TaskDeleteView(LoginRequiredMixin, OnlyAuthorMixin, SafeDeleteWithProtectedErrorMixin, DeleteView):
+class TaskDeleteView(
+    LoginRequiredMixin,
+    OnlyAuthorMixin,
+    SafeDeleteWithProtectedErrorMixin,
+    DeleteView,
+):
     model = Task
     template_name = "tasks/delete.html"
     success_url = reverse_lazy("tasks_list")
-    protected_error_message = "Невозможно удалить задачу, потому что она используется"
+    protected_error_message = (
+        "Невозможно удалить задачу, потому что она используется"
+    )
     success_message = "Задача успешно удалена"

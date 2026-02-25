@@ -50,7 +50,10 @@ class UsersCrudTests(TestCase):
 class StatusesCrudTests(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="StrongPass123")
+        self.user = User.objects.create_user(
+            username="u",
+            password="StrongPass123",
+        )
         self.client.login(username="u", password="StrongPass123")
 
     def test_statuses_routes_require_login(self):
@@ -81,7 +84,10 @@ class StatusesCrudTests(TestCase):
     def test_update_status(self):
         status = Status.objects.create(name="Старое")
 
-        response = self.client.post(f"/statuses/{status.id}/update/", {"name": "Новое"})
+        response = self.client.post(
+            f"/statuses/{status.id}/update/",
+            {"name": "Новое"},
+        )
         self.assertEqual(response.status_code, 302)
 
         status.refresh_from_db()
@@ -99,7 +105,9 @@ class StatusesCrudTests(TestCase):
         try:
             from task_manager.models import Task
         except Exception:
-            self.skipTest("Task model is not implemented yet in task_manager.models")
+            self.skipTest(
+                "Task model is not implemented yet in task_manager.models"
+            )
 
         status = Status.objects.create(name="Связанный")
         Task.objects.create(name="T1", status=status, author=self.user)
@@ -219,17 +227,14 @@ class TasksCrudTests(TestCase):
             executor=self.executor,
         )
 
-        response = self.client.get(
-            f"/tasks/{task.id}/",
-        )
-
+        response = self.client.get(f"/tasks/{task.id}/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Просмотр")
 
-    def test_delete_task_only_author_can_delete(self):
+    def test_only_author_can_delete_task(self):
         task = Task.objects.create(
-            name="Удаление",
-            description="Текст",
+            name="Del",
+            description="",
             status=self.status,
             author=self.author,
             executor=self.executor,
@@ -244,8 +249,8 @@ class TasksCrudTests(TestCase):
         response_forbidden = self.client.post(
             f"/tasks/{task.id}/delete/",
         )
-
         self.assertEqual(response_forbidden.status_code, 302)
+
         self.assertTrue(
             Task.objects.filter(id=task.id).exists()
         )
@@ -268,7 +273,10 @@ class TasksCrudTests(TestCase):
 
 class LabelsCrudTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="u1", password="pass12345")
+        self.user = User.objects.create_user(
+            username="u1",
+            password="pass12345",
+        )
         self.status = Status.objects.create(name="S1")
 
     def test_labels_list_requires_login(self):
@@ -278,7 +286,10 @@ class LabelsCrudTests(TestCase):
     def test_create_label(self):
         self.client.login(username="u1", password="pass12345")
 
-        response = self.client.post(reverse("label_create"), data={"name": "L1"})
+        response = self.client.post(
+            reverse("label_create"),
+            data={"name": "L1"},
+        )
         self.assertEqual(response.status_code, 302)
 
         self.assertTrue(Label.objects.filter(name="L1").exists())
@@ -287,7 +298,10 @@ class LabelsCrudTests(TestCase):
         self.client.login(username="u1", password="pass12345")
         label = Label.objects.create(name="L1")
 
-        response = self.client.post(reverse("label_update", args=[label.id]), data={"name": "L2"})
+        response = self.client.post(
+            reverse("label_update", args=[label.id]),
+            data={"name": "L2"},
+        )
         self.assertEqual(response.status_code, 302)
 
         label.refresh_from_db()
@@ -323,10 +337,22 @@ class LabelsCrudTests(TestCase):
 
 class TasksFilterTests(TestCase):
     def setUp(self):
-        self.author = User.objects.create_user(username="author_f", password="StrongPass123")
-        self.other_author = User.objects.create_user(username="other_f", password="StrongPass123")
-        self.executor_1 = User.objects.create_user(username="exec1_f", password="StrongPass123")
-        self.executor_2 = User.objects.create_user(username="exec2_f", password="StrongPass123")
+        self.author = User.objects.create_user(
+            username="author_f",
+            password="StrongPass123",
+        )
+        self.other_author = User.objects.create_user(
+            username="other_f",
+            password="StrongPass123",
+        )
+        self.executor_1 = User.objects.create_user(
+            username="exec1_f",
+            password="StrongPass123",
+        )
+        self.executor_2 = User.objects.create_user(
+            username="exec2_f",
+            password="StrongPass123",
+        )
 
         self.status_1 = Status.objects.create(name="S1_f")
         self.status_2 = Status.objects.create(name="S2_f")
@@ -347,46 +373,31 @@ class TasksFilterTests(TestCase):
             name="T2_f",
             description="",
             status=self.status_2,
-            author=self.author,
+            author=self.other_author,
             executor=self.executor_2,
         )
         self.t2.labels.add(self.label_2)
 
-        self.t3 = Task.objects.create(
-            name="T3_f",
-            description="",
-            status=self.status_1,
-            author=self.other_author,
-            executor=self.executor_1,
-        )
-        self.t3.labels.add(self.label_2)
-
-        self.client.login(username="author_f", password="StrongPass123")
-
     def test_filter_by_status(self):
+        self.client.login(username="author_f", password="StrongPass123")
         response = self.client.get("/tasks/", {"status": self.status_1.id})
-        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "T1_f")
-        self.assertContains(response, "T3_f")
         self.assertNotContains(response, "T2_f")
 
     def test_filter_by_executor(self):
-        response = self.client.get("/tasks/", {"executor": self.executor_2.id})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "T2_f")
-        self.assertNotContains(response, "T1_f")
-        self.assertNotContains(response, "T3_f")
+        self.client.login(username="author_f", password="StrongPass123")
+        response = self.client.get("/tasks/", {"executor": self.executor_1.id})
+        self.assertContains(response, "T1_f")
+        self.assertNotContains(response, "T2_f")
 
     def test_filter_by_label(self):
-        response = self.client.get("/tasks/", {"label": self.label_2.id})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "T2_f")
-        self.assertContains(response, "T3_f")
-        self.assertNotContains(response, "T1_f")
-
-    def test_filter_only_self_tasks(self):
-        response = self.client.get("/tasks/", {"self_tasks": "on"})
-        self.assertEqual(response.status_code, 200)
+        self.client.login(username="author_f", password="StrongPass123")
+        response = self.client.get("/tasks/", {"label": self.label_1.id})
         self.assertContains(response, "T1_f")
-        self.assertContains(response, "T2_f")
-        self.assertNotContains(response, "T3_f")
+        self.assertNotContains(response, "T2_f")
+
+    def test_filter_self_tasks(self):
+        self.client.login(username="author_f", password="StrongPass123")
+        response = self.client.get("/tasks/", {"self_tasks": "on"})
+        self.assertContains(response, "T1_f")
+        self.assertNotContains(response, "T2_f")

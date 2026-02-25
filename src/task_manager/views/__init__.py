@@ -1,7 +1,18 @@
 from django.shortcuts import render
 
-from .labels import LabelsListView, LabelCreateView, LabelUpdateView, LabelDeleteView
-from .statuses import StatusListView, StatusCreateView, StatusUpdateView, StatusDeleteView, StatusForm
+from .labels import (
+    LabelCreateView,
+    LabelDeleteView,
+    LabelsListView,
+    LabelUpdateView,
+)
+from .statuses import (
+    StatusCreateView,
+    StatusDeleteView,
+    StatusForm,
+    StatusListView,
+    StatusUpdateView,
+)
 from .tasks import (
     TaskListView,
     TaskCreateView,

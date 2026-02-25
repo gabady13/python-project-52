@@ -33,7 +33,10 @@ try:
             root=settings.ROLLBAR["root"],
             handler="blocking",
         )
-        rollbar.report_message("Rollbar test message (wsgi startup)", level="info")
+        rollbar.report_message(
+            "Rollbar test message (wsgi startup)",
+            level="info"
+        )
 except Exception:
     # Любая ошибка в тестовой отправке не должна ломать запуск приложения
     pass

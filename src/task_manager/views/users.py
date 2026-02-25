@@ -1,12 +1,12 @@
 from django import forms
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
-from django.contrib.auth.password_validation import validate_password
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from .mixins import SafeDeleteWithProtectedErrorMixin
 
@@ -23,7 +23,13 @@ class UsersListView(ListView):
 class UserRegisterForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("first_name", "last_name", "username", "password1", "password2")
+        fields = (
+            "first_name",
+            "last_name",
+            "username",
+            "password1",
+            "password2",
+        )
         labels = {
             "first_name": "Имя",
             "last_name": "Фамилия",
@@ -32,10 +38,10 @@ class UserRegisterForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         for field in self.fields.values():
             field.widget.attrs.update({"class": "form-control"})
-        
+
         self.fields["password1"].label = "Пароль"
         self.fields["password2"].label = "Подтверждение пароля"
 
@@ -54,7 +60,13 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "username", "password1", "password2")
+        fields = (
+            "first_name",
+            "last_name",
+            "username",
+            "password1",
+            "password2",
+        )
         labels = {
             "first_name": "Имя",
             "last_name": "Фамилия",
@@ -76,7 +88,6 @@ class UserUpdateForm(forms.ModelForm):
             if p1 != p2:
                 self.add_error("password2", "Пароли не совпадают")
             else:
-
                 validate_password(p1, self.instance)
 
         return cleaned
@@ -118,11 +129,18 @@ class UserUpdateView(LoginRequiredMixin, OnlySelfMixin, UpdateView):
         return super().form_valid(form)
 
 
-class UserDeleteView(LoginRequiredMixin, OnlySelfMixin, SafeDeleteWithProtectedErrorMixin, DeleteView):
+class UserDeleteView(
+    LoginRequiredMixin,
+    OnlySelfMixin,
+    SafeDeleteWithProtectedErrorMixin,
+    DeleteView,
+):
     model = User
     template_name = "users/user_confirm_delete.html"
     success_url = reverse_lazy("users_list")
-    protected_error_message = "Невозможно удалить пользователя, потому что он используется"
+    protected_error_message = (
+        "Невозможно удалить пользователя, потому что он используется"
+    )
     success_message = "Пользователь успешно удален"
 
 
