@@ -41,11 +41,11 @@ urlpatterns = [
     path('statuses/<int:pk>/update/', StatusUpdateView.as_view(), name='status_update'),
     path('statuses/<int:pk>/delete/', StatusDeleteView.as_view(), name='status_delete'),
 
-    path('tasks/', TaskListView.as_view(), name='tasks_list'),
-    path('tasks/create/', TaskCreateView.as_view(), name='task_create'),
-    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task_show'),
-    path('tasks/<int:pk>/update/', TaskUpdateView.as_view(), name='task_update'),
-    path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task_delete'),
+    path('tasks/', TaskListView.as_view(), name='tasks_list'),  # GET /tasks/ — список задач
+    path('tasks/create/', TaskCreateView.as_view(), name='task_create'),  # GET/POST /tasks/create/ — создание
+    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task_show'),  # GET /tasks/<pk>/ — просмотр
+    path('tasks/<int:pk>/update/', TaskUpdateView.as_view(), name='task_update'),  # GET/POST update
+    path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task_delete'),  # GET/POST delete
 
     path("labels/", LabelsListView.as_view(), name="labels_list"),
     path("labels/create/", LabelCreateView.as_view(), name="label_create"),

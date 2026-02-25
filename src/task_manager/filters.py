@@ -32,10 +32,10 @@ class TaskFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.form.fields["status"].widget.attrs.update({"class": "form-select ms-2 me-3"})
-        self.form.fields["executor"].widget.attrs.update({"class": "form-select me-3 ms-2"})
-        self.form.fields["label"].widget.attrs.update({"class": "form-select me-3 ms-2"})
-        self.form.fields["self_tasks"].widget.attrs.update({"class": "form-check-input me-3"})
+        self.form.fields["status"].widget.attrs.update({"class": "form-select ml-2 mr-3"})
+        self.form.fields["executor"].widget.attrs.update({"class": "form-select mr-3 ml-2"})
+        self.form.fields["label"].widget.attrs.update({"class": "form-select mr-3 ml-2"})
+        self.form.fields["self_tasks"].widget.attrs.update({"class": "form-check-input mr-3"})
 
     def filter_label(self, queryset, name, value):
         if not value:
