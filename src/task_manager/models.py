@@ -22,8 +22,14 @@ class Label(models.Model):
 
 
 class Task(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Имя')
-    description = models.TextField(blank=True, verbose_name='Описание')
+    name = models.CharField(
+        max_length=255,
+        verbose_name='Имя'
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name='Описание'
+    )
 
     status = models.ForeignKey(
         Status,
