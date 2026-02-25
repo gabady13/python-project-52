@@ -123,7 +123,7 @@ class UserDeleteView(LoginRequiredMixin, OnlySelfMixin, SafeDeleteWithProtectedE
     template_name = "users/user_confirm_delete.html"
     success_url = reverse_lazy("users_list")
     protected_error_message = "Невозможно удалить пользователя, потому что он используется"
-    success_message = "Пользователь успешно удалён"
+    success_message = "Пользователь успешно удален"
 
 
 class UserLoginForm(AuthenticationForm):
