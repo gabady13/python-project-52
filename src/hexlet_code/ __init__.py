@@ -1,1 +1,1 @@
-"""Hexlet project package marker."""
+"""Package marker for hexlet-code."""
