@@ -7,10 +7,5 @@
         Приложение для управления задачами, статусами и метками.
         Организуйте работу команды эффективно и прозрачно.
     </p>
-
-    {% if not user.is_authenticated %}
-    <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-2">Войти</a>
-    <a href="{% url 'user_create' %}" class="btn btn-outline-primary btn-lg">Регистрация</a>
-    {% endif %}
 </div>
 {% endblock %}
