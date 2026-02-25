@@ -47,4 +47,4 @@ class StatusDeleteView(LoginRequiredMixin, SafeDeleteWithProtectedErrorMixin, De
     template_name = "statuses/delete.html"
     success_url = reverse_lazy("statuses_list")
     protected_error_message = "Невозможно удалить статус, потому что он используется"
-    success_message = "Статус успешно удалён"
+    success_message = "Статус успешно удален"

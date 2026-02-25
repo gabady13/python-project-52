@@ -42,7 +42,7 @@
             <div class="row p-1">
                 <div class="col">
                     <a href="{% url 'task_update' task.id %}">Изменить</a>
-                    {% if task.author_id == user.id %}
+                    {% if task.author_id == request.user.id %}
                     <br>
                     <a href="{% url 'task_delete' task.id %}">Удалить</a>
                     {% endif %}

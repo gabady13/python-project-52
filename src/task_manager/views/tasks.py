@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.forms import ModelForm
 from django.shortcuts import redirect
@@ -15,7 +16,17 @@ class TaskForm(ModelForm):
     class Meta:
         model = Task
         fields = ["name", "description", "status", "executor", "labels"]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        User = get_user_model()
+        self.fields["executor"].queryset = User.objects.all()
 
+        def _label(user):
+            full_name = f"{user.first_name} {user.last_name}".strip()
+            return full_name or user.get_username()
+
+        self.fields["executor"].label_from_instance = _label
 
 class TaskListView(LoginRequiredMixin, FilterView):
     model = Task
