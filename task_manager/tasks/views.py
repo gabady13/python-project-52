@@ -8,7 +8,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django_filters.views import FilterView
 
 from task_manager.tasks.filters import TaskFilter
-from ..models import Task
+from task_manager.tasks.models import Task
 from task_manager.views.mixins import SafeDeleteWithProtectedErrorMixin
 
 

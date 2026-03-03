@@ -5,7 +5,8 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from ..models import Label, Task
+from task_manager.tasks.models import Task
+from task_manager.labels.models import Label
 
 
 class LabelForm(ModelForm):

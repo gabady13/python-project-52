@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from ..models import Status
+from task_manager.statuses.models import Status
 from task_manager.views.mixins import SafeDeleteWithProtectedErrorMixin
 
 
