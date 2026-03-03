@@ -2,7 +2,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
-from task_manager.models import Status, Task, Label
+from task_manager.tasks.models import Task
+from task_manager.statuses.models import Status
+from task_manager.labels.models import Label
 
 
 class UsersCrudTests(TestCase):
@@ -103,7 +105,7 @@ class StatusesCrudTests(TestCase):
 
     def test_cannot_delete_status_if_linked_to_task(self):
         try:
-            from task_manager.models import Task
+            from task_manager.tasks.models import Task
         except Exception:
             self.skipTest(
                 "Task model is not implemented yet in task_manager.models"
