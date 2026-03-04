@@ -25,7 +25,7 @@
         </label>
         {{ form.first_name }}
         {% if form.first_name.help_text %}
-        <div class="form-text">{{ form.first_name.help_text|safe }}</div>
+        <div class="form-text">{{ form.first_name.help_text }}</div>
         {% endif %}
         {% for error in form.first_name.errors %}
         <div class="text-danger small">{{ error }}</div>
