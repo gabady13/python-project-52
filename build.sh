@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
-# скачиваем uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source $HOME/.local/bin/env
+set -e
 
-# команду установки зависимостей, сборки статики, применения миграций и другие
-make install && make collectstatic && make migrate
+# скачать uv
+curl -LsSf https://astral.sh/uv/install.sh -o install_uv.sh
+
+# выполнить установку
+sh install_uv.sh
+
+# добавить uv в PATH
+source "$HOME/.local/bin/env"
+
+# установка зависимостей и миграции
+make install
+make collectstatic
+make migrate
