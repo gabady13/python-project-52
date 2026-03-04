@@ -23,3 +23,8 @@ collectstatic:
 test:
 	uv run python manage.py migrate
 	uv run python manage.py test task_manager
+
+test-coverage:
+	uv run python manage.py migrate
+	uv run coverage run -m django test task_manager
+	uv run coverage xml -o coverage.xml
