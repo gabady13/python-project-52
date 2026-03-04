@@ -2,7 +2,7 @@
 set -e
 
 # скачать uv
-curl -LsSf https://astral.sh/uv/install.sh -o install_uv.sh
+curl --proto '=https' --tlsv1.2 -LsSf https://astral.sh/uv/install.sh -o install_uv.sh
 
 # выполнить установку
 sh install_uv.sh
