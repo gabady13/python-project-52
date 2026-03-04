@@ -24,7 +24,7 @@ jobs:
           make test-coverage
 
       - name: SonarQubeScan
-        uses: SonarSource/sonarqube-scan-action@v7
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -32,5 +32,5 @@ jobs:
             -Dsonar.projectKey=gabady13_python-project-52
             -Dsonar.organization=gabady13
             -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.coverage.exclusions=tests/**
-            -Dsonar.exclusions=tests/**
+            -Dsonar.coverage.exclusions=**/migrations/**,**/__pycache__/**,**/*.pyc,**/templates/**,**/static/**
+            -Dsonar.exclusions=**/migrations/**,**/*tests*.py,**/tests/**
