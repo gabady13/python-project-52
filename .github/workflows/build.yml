@@ -17,9 +17,11 @@ jobs:
         run: |
           pip install uv
           make install
-      - name: Run test
+          uv pip install coverage
+
+      - name: Run tests with coverage
         run: |
-          make test
+          make test-coverage
 
       - name: SonarQubeScan
         uses: SonarSource/sonarqube-scan-action@v7

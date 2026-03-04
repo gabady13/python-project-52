@@ -26,5 +26,6 @@ test:
 
 test-coverage:
 	uv run python manage.py migrate
-	uv run coverage run -m django test task_manager
+	uv run coverage run manage.py test task_manager
 	uv run coverage xml -o coverage.xml
+	uv run coverage report
